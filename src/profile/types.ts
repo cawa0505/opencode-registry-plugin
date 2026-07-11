@@ -8,18 +8,10 @@
 
 import type { CapabilityTag } from "../registry/types.js";
 
-export interface McpProfileServer {
-  /** MCP server name from the registry. */
-  name: string;
-  /** Optional: only include specific tools from this server. */
-  tools?: string[];
-}
-
 export interface McpProfile {
   /** Profile metadata. */
   name: string;
   description?: string;
-  version?: string;
 
   /** Capability tags this profile targets. */
   tags?: CapabilityTag[];
@@ -29,16 +21,4 @@ export interface McpProfile {
     include?: string[];
     exclude?: string[];
   };
-
-  /** Explicit server + optional per-server tool filtering. */
-  mcp?: McpProfileServer[];
-
-  /** Priority: higher wins when multiple profiles overlap (default 0). */
-  priority?: number;
-}
-
-export interface McpProfileManifest {
-  $schema?: string;
-  profiles: McpProfile[];
-  default?: string;
 }

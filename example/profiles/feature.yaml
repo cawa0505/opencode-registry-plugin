@@ -1,10 +1,8 @@
 # feature development profile — full toolset with write access
-# Activate: registry switch feature
+# Activate: /registry switch feature (in-session)
 name: feature
 description: "Feature development — full MCP toolset for implementation"
-version: "1.0"
-priority: 5
-tags:
+tags:            # capability tags this profile steers toward
   - code
   - search
   - read

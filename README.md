@@ -1,23 +1,25 @@
 # @jimmyyen/opencode-registry-plugin
 
-Intent-driven resource scheduling for [OpenCode](https://github.com/opencode-ai/opencode).
+**Attention management for [OpenCode](https://github.com/opencode-ai/opencode) MCP tools.**
 
 Scans your MCP servers, tags them by capability, and — per active profile or
-detected intent — steers the model toward the relevant tools and away from
-the noise. Goal: fewer irrelevant tools in context, lower token waste, sharper
-tool use on big projects.
+detected intent — *soft-steers* the model toward the relevant tools and away
+from the noise. The goal is to cut **tool-use hallucination**: the model picking
+the wrong tool, or freezing up, because it's staring at a wall of unrelated MCP
+tools every single turn.
 
-> **⚠️ Unstable / experimental.** This package is early and the slash-command
-> registration path is still being ironed out. Don't rely on it in production
-> yet — see [Commands](#commands) for the current setup and fallback.
+> **⚠️ Unstable / experimental.** Early, and the slash-command registration
+> path is still being ironed out. Don't rely on it in production yet — see
+> [Commands](#commands).
 
-> **How it works (and its limit).** OpenCode has no hook that can *delete*
-> MCP tools at request time. This plugin uses the real, supported hooks:
+> **What it does — and its hard limit.** OpenCode has no hook that can *delete*
+> MCP tools at request time, so this plugin does **not** remove tools. It uses
+> the real, supported hooks to *steer attention*:
 > - `experimental.chat.system.transform` — injects a short note naming the
->   active scope and in-scope MCP servers.
-> - `tool.definition` — down-ranks out-of-scope MCP tools by rewriting
->   their description (soft-gating: the model is steered, not blocked).
-> - `chat.message` — captures user intent + applies auto-profile.
+>   active scope and the in-scope MCP servers.
+> - `tool.definition` — down-ranks out-of-scope MCP tools by rewriting their
+>   description (soft-gating: the model is steered, not blocked).
+> - `chat.message` — captures user intent and applies the auto-profile.
 > - `tool` — the `registry` tool; slash command `/registry` (see Commands).
 >
 > Every hook is wrapped in **fail-open**: a registry error never blocks the
@@ -26,64 +28,49 @@ tool use on big projects.
 ## Install
 
 ```bash
-npm i -g @jimmyyen/opencode-registry-plugin
+npm install @jimmyyen/opencode-registry-plugin
+# or
+bun add @jimmyyen/opencode-registry-plugin
 ```
 
-Then add to your `opencode.json`:
+Then register it in your `opencode.json` (see
+[`example/opencode.json`](example/opencode.json)):
 
 ```json
 {
-  "plugins": ["@jimmyyen/opencode-registry-plugin"]
+  "plugin": [
+    "@jimmyyen/opencode-registry-plugin"
+  ]
 }
 ```
 
 ## Config
 
-### Profiles (YAML)
+- **[Profiles](docs/profiles.md)** — scene presets (YAML) that soft-steer tool
+  scope via capability tags. Shipped examples in
+  [`example/profiles/`](example/profiles/).
+- **[Auto-profile](docs/auto-profile.md)** — auto-activate a profile per project
+  via `opencode.registry.json`. Example in
+  [`example/opencode.registry.json`](example/opencode.registry.json).
 
-Define scenes as YAML. Loaded from both global and project dirs:
+## Examples
 
-- `~/.config/opencode/profiles/*.yaml`
-- `<project>/.opencode/profiles/*.yaml` or `<project>/profiles/*.yaml`
+Ready-to-copy examples live in [`example/`](example/):
 
-```yaml
-# profiles/bugfix.yaml
-name: bugfix
-description: Fix bugs — code, search, read, debug only
-includeTags: [code, search, read, debug]
-excludeTags: [web, db, doc]
-```
-
-### Project auto-switch — `opencode.registry.json`
-
-Drop one in your project root (or `~/.config/opencode/opencode.registry.json`
-for a global default). Project overrides global.
-
-```json
-{
-  "defaultProfile": "feature",
-  "autoProfiles": [
-    { "match": { "pathContains": "migrations" }, "profile": "db" },
-    { "match": { "fileTypes": [".py"] }, "profile": "python" }
-  ]
-}
-```
+| File | What it shows |
+|------|---------------|
+| `example/profiles/*.yaml` | `bugfix` / `feature` / `review` / `db` profile presets |
+| `example/opencode.registry.json` | auto-profile by path / file type |
+| `example/opencode.json` | plugin registration snippet |
 
 ## Commands
 
-The plugin exposes a `registry` tool and registers a **`/registry`** slash
-command via the plugin's `config` hook.
-
-| Command | Effect |
-|---|---|
-| `/registry list` | List loaded profiles |
-| `/registry status` | Show active scope, servers, tags |
-| `/registry switch <name>` | Activate a profile |
-| `/registry off` | Deactivate; fall back to auto-intent |
-| `/registry reload` | Re-scan registry + profiles |
-
-Set `MCP_REGISTRY_DEBUG=1` to write a debug snapshot to
-`/tmp/opencode-registry-<session>.json`.
+- **`/registry` tool** (in-session): `switch <profile>`, `deactivate`, `status`,
+  `list`, `tags`. Switching here actually changes live plugin state.
+- **Standalone CLI** (`registry scan | list | status | tags`): read-only
+  diagnostics. The old `registry switch` subcommand was removed — the CLI runs
+  in a separate process and can't reach the live plugin state, so it was dead
+  code that only pretended to switch.
 
 ## License
 

@@ -23,20 +23,6 @@ export const ALL_CAPABILITIES: CapabilityTag[] = [
   "web", "media", "debug", "utility",
 ];
 
-/** MCP tool metadata with capability tagging. */
-export interface McpToolMetadata {
-  /** Tool name as OpenCode sees it (e.g. "code-review-graph_query_graph"). */
-  name: string;
-  /** Human-readable label. */
-  label: string;
-  /** Capability tags for this tool. */
-  tags: CapabilityTag[];
-  /** Which MCP server this tool belongs to. */
-  serverName: string;
-  /** Optional description (from MCP tool definition). */
-  description?: string;
-}
-
 /** Shape of an opencode.json MCP config entry. */
 export interface McpConfigEntry {
   type: "remote" | "local";
@@ -60,8 +46,6 @@ export interface RegistryEntry {
   config: McpConfigEntry;
   /** Capability tags inferred for this server. */
   tags: CapabilityTag[];
-  /** Individual tool metadata (populated on deeper scan). */
-  tools: McpToolMetadata[];
 }
 
 /** A filter expression — keep tools matching ANY of these tags. */

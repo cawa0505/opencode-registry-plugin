@@ -1,16 +1,14 @@
 # bugfix profile — focus on debugging and code analysis tools
-# Activate: registry switch bugfix
+# Activate: /registry switch bugfix (in-session)
 name: bugfix
 description: "Debugging session with code analysis, search, and web research tools"
-version: "1.0"
-priority: 10
-tags:
+tags:            # capability tags this profile steers toward
   - code
   - search
   - read
   - debug
   - web
 servers:
-  exclude:
+  exclude:       # MCP server names to down-rank (soft-gate)
     - media
     - utility

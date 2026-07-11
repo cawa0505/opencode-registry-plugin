@@ -11,7 +11,6 @@ export type {
   CapabilityTag,
   RegistryEntry,
   McpConfigEntry,
-  McpToolMetadata,
   TagFilter,
   RegistrySnapshot,
 } from "./registry/types.js";
@@ -19,11 +18,10 @@ export type {
 export { scanRegistry } from "./registry/scanner.js";
 
 export { ProfileManager } from "./profile/manager.js";
-export type { McpProfile, McpProfileServer, McpProfileManifest } from "./profile/types.js";
+export type { McpProfile } from "./profile/types.js";
 
 export {
   resolveActiveServers,
-  buildToolOverride,
   type FilterConfig,
   type FilterStrategy,
 } from "./dispatch/filter.js";

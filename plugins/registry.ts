@@ -65,7 +65,7 @@ export const RegistryPlugin = async (
             return "registry: profile deactivated, back to auto-intent.";
           }
           case "reload": {
-            initializePlugin(debug);
+            initializePlugin(debug, directory);
             if (profile) switchProfile(profile);
             else tryAutoProfile(directory);
             return "registry: reloaded. " + JSON.stringify(getPluginState().profiles);
@@ -98,13 +98,9 @@ export const RegistryPlugin = async (
 
     /**
      * Register /registry as a slash command via the config.command
-     * mutation. This is the same (undocumented but working) pattern the
-     * speak-human-tw reference plugin uses: config.command registers the
-     * command, and the command.execute.before hook below lets it pass
-     * through to the LLM (which then calls the `registry` tool).
-     * A plugin package's own .opencode/commands/ is NOT scanned when the
-     * plugin is installed elsewhere, so the markdown file there is dead;
-     * examples/registry.md is shipped as a manual fallback instead.
+     * mutation. config.command registers the command, and the
+     * command.execute.before hook below lets it pass through to the LLM
+     * (which then calls the `registry` tool).
      * The template is sent to the LLM with the user's arguments appended.
      */
     config: async (config: any) => {
@@ -117,20 +113,30 @@ export const RegistryPlugin = async (
         description:
           "Tool Registry: switch/reload/list/status/off tool profiles",
       };
+      config.command["crg"] = {
+        template:
+          "Manage the code-review-graph multi-repo registry by running the " +
+          "`crg-repo` shell command. Parse the user's arguments and execute " +
+          "exactly one of: `crg-repo add <repo-path>`, " +
+          "`crg-repo remove <repo-path>`, or `crg-repo list`. " +
+          "Use your exec/bash tool to run the command and report its output " +
+          "verbatim. Do not just describe it — actually run it.\n\n",
+        description:
+          "Code Review Graph: add/remove/list repos in the multi-repo registry",
+      };
     },
 
     /**
      * Let /registry pass through to the LLM. The config.command entry
-     * above registers the command; this no-op hook (same pattern as the
-     * speak-human-tw reference plugin) stops opencode from looking for a
-     * command handler so the template reaches the LLM, which then calls
-     * the `registry` tool.
+     * above registers the command; this no-op hook stops opencode from
+     * looking for a command handler so the template reaches the LLM,
+     * which then calls the `registry` tool.
      */
-    "command.execute.before": async (command: any) => {
-      if (command?.command === "registry") {
-        return;
-      }
-    },
+      "command.execute.before": async (command: any) => {
+        if (command?.command === "registry" || command?.command === "crg") {
+          return;
+        }
+      },
 
     /**
      * Capture user intent + auto-profile on each user message.

@@ -1,16 +1,14 @@
 # code review profile — read-only analysis tools
-# Activate: registry switch review
+# Activate: /registry switch review (in-session)
 name: review
 description: "Code review — read-only analysis without write/web tools"
-version: "1.0"
-priority: 8
-tags:
+tags:            # capability tags this profile steers toward
   - code
   - search
   - read
   - nav
 servers:
-  exclude:
+  exclude:       # MCP server names to down-rank (soft-gate)
     - write
     - web
     - media

@@ -6,7 +6,7 @@
 import { registry } from "../registry/registry.js";
 import { ProfileManager } from "../profile/manager.js";
 import { dispatchIntent } from "../dispatch/intent.js";
-import { resolveActiveServers, buildToolOverride } from "../dispatch/filter.js";
+import { resolveActiveServers } from "../dispatch/filter.js";
 import type { FilterConfig } from "../dispatch/filter.js";
 import type { CapabilityTag } from "../registry/types.js";
 import { detectProfile } from "./autoprofile.js";
@@ -15,6 +15,7 @@ import { detectProfile } from "./autoprofile.js";
 
 let initialized = false;
 let debugEnabled = false;
+let projectDir: string | undefined = undefined;
 
 const profileManager = new ProfileManager();
 let activeFilter: FilterConfig | undefined = undefined;
@@ -45,11 +46,12 @@ export interface PluginState {
  * Initialize the plugin — scan registry + load profiles.
  * Called once at plugin load time.
  */
-export function initializePlugin(debug = false): boolean {
+export function initializePlugin(debug = false, directory?: string): boolean {
   if (initialized) return true;
   debugEnabled = debug;
+  if (directory) projectDir = directory;
 
-  const regOk = registry.initialize();
+  const regOk = registry.initialize(projectDir);
   if (debugEnabled) {
     console.error(`[McpRegistry] Registry init: ${regOk ? "OK" : "FAILED"}`);
     if (regOk) console.error(registry.summarize());

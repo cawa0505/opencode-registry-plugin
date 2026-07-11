@@ -17,14 +17,14 @@ export class RegistryEngine {
   private snapshot: RegistrySnapshot | null = null;
 
   /** Initialize by scanning opencode.json. */
-  initialize(): boolean {
-    this.snapshot = scanRegistry();
+  initialize(directory?: string): boolean {
+    this.snapshot = scanRegistry(directory);
     return this.snapshot !== null;
   }
 
   /** Force a re-scan. */
-  reScan(): boolean {
-    return this.initialize();
+  reScan(directory?: string): boolean {
+    return this.initialize(directory);
   }
 
   /** True if the engine has been initialized. */

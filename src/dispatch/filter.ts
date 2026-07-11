@@ -60,12 +60,3 @@ export function resolveActiveServers(config: FilterConfig = DEFAULT_FILTER): Reg
   const excludeSet = new Set(config.excludeServers ?? []);
   return filtered.filter((e) => !excludeSet.has(e.name));
 }
-
-/**
- * Build a tools list override (server names only) for OpenCode.
- * Currently OpenCode uses server-level MCP enable/disable,
- * so we return the list of active server names.
- */
-export function buildToolOverride(config: FilterConfig): string[] {
-  return resolveActiveServers(config).map((e) => e.name);
-}

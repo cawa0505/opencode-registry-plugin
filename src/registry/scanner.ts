@@ -33,19 +33,27 @@ const DEFAULT_TAG_MAP: Record<string, CapabilityTag[]> = {
 };
 
 // ── Config paths to search ────────────────────────────────────────────
-function configPaths(): string[] {
+function configPaths(directory?: string): string[] {
   const home = homedir();
-  return [
+  const searchDirs = [directory, process.cwd()].filter(Boolean) as string[];
+  const paths: string[] = [
     resolve(home, ".config/opencode/opencode.json"),
     resolve(home, ".config/opencode/opencode.jsonc"),
-    resolve(process.cwd(), ".opencode/opencode.json"),
-    resolve(process.cwd(), ".opencode/opencode.jsonc"),
   ];
+  for (const d of searchDirs) {
+    paths.push(
+      resolve(d, ".opencode/opencode.json"),
+      resolve(d, ".opencode/opencode.jsonc"),
+      resolve(d, "opencode.json"),
+      resolve(d, "opencode.jsonc"),
+    );
+  }
+  return paths;
 }
 
 /** Try to load and parse opencode.json from known paths. */
-function loadConfig(): OpencodeConfig | null {
-  for (const p of configPaths()) {
+function loadConfig(directory?: string): OpencodeConfig | null {
+  for (const p of configPaths(directory)) {
     if (!existsSync(p)) continue;
     try {
       const raw = readFileSync(p, "utf-8");
@@ -92,7 +100,6 @@ function entryFromMcp(name: string, entry: McpConfigEntry): RegistryEntry {
     name,
     config: entry,
     tags,
-    tools: [], // populated on deeper scan
   };
 }
 
@@ -103,8 +110,8 @@ function entryFromMcp(name: string, entry: McpConfigEntry): RegistryEntry {
  *
  * Returns null when no valid config is found.
  */
-export function scanRegistry(): RegistrySnapshot | null {
-  const config = loadConfig();
+export function scanRegistry(directory?: string): RegistrySnapshot | null {
+  const config = loadConfig(directory);
   if (!config?.mcp) return null;
 
   const entries: RegistryEntry[] = [];

@@ -3,106 +3,22 @@
  *
  * Profiles are YAML files in the project or user config directory.
  * They define scenes (bugfix, feature, review, etc.) with custom
- * MCP tool selections, capability tag filters, and priorities.
+ * MCP tool selections and capability tag filters.
  */
 
 import { readFileSync, existsSync, readdirSync } from "fs";
 import { homedir } from "os";
-import { join, resolve, extname } from "path";
+import { join, resolve } from "path";
+import { parse } from "yaml";
 import type { CapabilityTag } from "../registry/types.js";
 import type { FilterConfig } from "../dispatch/filter.js";
-import type { McpProfile, McpProfileManifest } from "./types.js";
+import type { McpProfile } from "./types.js";
 
-/**
- * Minimal YAML parser — just enough for simple YAML profiles.
- * Avoids adding a dependency; only supports the subset needed.
- */
-function parseSimpleYaml(text: string): Record<string, unknown> {
-  const obj: Record<string, unknown> = {};
-  const lines = text.split("\n");
-  const stack: { key: string; indent: number; parent: Record<string, unknown> }[] = [];
-  let current = obj;
-  let currentIndent = 0;
-
-  for (const rawLine of lines) {
-    const line = rawLine.replace(/\s*#.*$/, ""); // strip comments
-    if (!line.trim() || /^---/.test(line.trim())) continue;
-
-    const indent = line.search(/\S/);
-    const trimmed = line.trim();
-
-    // Array items with -
-    if (/^-\s/.test(trimmed)) {
-      const val = trimmed.replace(/^-\s+/, "").replace(/^"|"$/g, "");
-      if (!Array.isArray(current)) {
-        // turn parent into array
-        const parentKey = stack.length > 0 ? stack[stack.length - 1].key : "";
-        if (parentKey && current !== obj) {
-          const arr = [val];
-          Object.assign(obj, { [parentKey]: arr });
-          current = arr as unknown as Record<string, unknown>;
-        }
-      } else {
-        (current as unknown as string[]).push(val);
-      }
-      continue;
-    }
-
-    // Key: value
-    const colonIdx = trimmed.indexOf(":");
-    if (colonIdx === -1) continue;
-    const key = trimmed.slice(0, colonIdx).trim();
-    let value: unknown = trimmed.slice(colonIdx + 1).trim();
-
-    // Handle nested objects
-    if (value === "" || value === "|") {
-      value = {} as Record<string, unknown>;
-    } else {
-      // String or number
-      if (/^\d+$/.test(value as string)) value = parseInt(value as string, 10);
-      else if (value === "true") value = true;
-      else if (value === "false") value = false;
-      else {
-        const sv = value as string;
-        if ((sv.startsWith('"') && sv.endsWith('"')) || (sv.startsWith("'") && sv.endsWith("'"))) {
-          value = sv.slice(1, -1);
-        }
-      }
-    }
-
-    // Navigate stack to right parent
-    if (indent <= currentIndent) {
-      while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
-        stack.pop();
-      }
-    }
-    current = stack.length > 0 ? stack[stack.length - 1].parent : obj;
-    currentIndent = indent;
-
-    if (typeof value === "object") {
-      (current as Record<string, unknown>)[key] = value;
-      stack.push({ key, indent, parent: current });
-      current = value as Record<string, unknown>;
-    } else {
-      (current as Record<string, unknown>)[key] = value;
-    }
-  }
-
-  return obj;
-}
-
-/** Standard YAML parser (uses Node's built-in if available, else simple parser). */
+/** Parse a profile YAML file into a plain object. */
 function parseYaml(text: string): Record<string, unknown> {
-  // Try native parse (Node 22+ has experimental YAML)
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { parse } = require("yaml") as { parse: (s: string) => unknown };
-    const result = parse(text);
-    if (result && typeof result === "object") return result as Record<string, unknown>;
-  } catch {
-    // fall through to simple parser
-  }
-  return parseSimpleYaml(text);
+  const result = parse(text);
+  if (result && typeof result === "object") return result as Record<string, unknown>;
+  return {};
 }
 
 // ── Profile directories ────────────────────────────────────────────────
@@ -137,14 +53,7 @@ function loadProfileFromFile(filePath: string): McpProfile | null {
   try {
     const text = readFileSync(filePath, "utf-8");
     const parsed = parseYaml(text);
-
-    // Check if it's a manifest with a profiles array
-    if (Array.isArray(parsed.profiles)) {
-      const manifest = parsed as unknown as McpProfileManifest;
-      return manifest.profiles[0] ?? null;
-    }
-
-    // Flat profile file
+    if (!parsed || typeof parsed.name !== "string") return null;
     return parsed as unknown as McpProfile;
   } catch {
     return null;

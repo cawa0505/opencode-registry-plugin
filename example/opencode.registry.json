@@ -1,0 +1,7 @@
+{
+  "defaultProfile": "feature",
+  "autoProfiles": [
+    { "match": { "pathContains": "migrations" }, "profile": "db" },
+    { "match": { "fileTypes": [".ts", ".tsx"] }, "profile": "feature" }
+  ]
+}

@@ -5,7 +5,6 @@
  * Usage:
  *   registry scan              — Scan and print MCP registry summary
  *   registry list              — List all profiles
- *   registry switch <profile>  — Switch to a named profile
  *   registry status            — Show current plugin state
  *   registry tags              — Show available capability tags
  *
@@ -26,7 +25,6 @@ function help(): void {
 Usage:
   registry scan              — Scan MCP config and show capability-map
   registry list              — List all loaded profiles
-  registry switch <profile>  — Activate a named profile
   registry status            — Show current plugin state
   registry tags              — Show available capability tags
   registry help              — Show this help
@@ -51,28 +49,6 @@ async function main(): Promise<void> {
       for (const name of mgr.list()) {
         const marker = name === mgr.active ? " *" : "  ";
         console.log(`  ${marker}${name}`);
-      }
-      break;
-    }
-    case "switch": {
-      const profileName = args[0];
-      if (!profileName) {
-        console.error("Usage: registry switch <profile-name>");
-        process.exit(1);
-      }
-      // Lazy import switchProfile from middleware
-      const { switchProfile } = await import("./integration/middleware.js");
-      const ok = switchProfile(profileName);
-      if (ok) {
-        // Write active profile to a temp file so the plugin can read it
-        const { writeFileSync } = await import("fs");
-        const { join } = await import("path");
-        const { tmpdir } = await import("os");
-        writeFileSync(join(tmpdir(), ".mcp-registry-active"), profileName, "utf-8");
-        console.log(`Switched to profile: ${profileName}`);
-      } else {
-        console.error(`Profile not found: ${profileName}`);
-        process.exit(1);
       }
       break;
     }

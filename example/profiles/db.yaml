@@ -1,0 +1,10 @@
+# db profile — focused code-search session
+# Activate: /registry switch db (in-session)
+name: db
+description: "Focused code-search — scope hard-limited to the semantic-search server"
+tags:            # ignored when servers.include is set (shown for contrast)
+  - code
+  - search
+servers:
+  include:       # hard allow-list: ONLY these servers stay in scope
+    - code-rag

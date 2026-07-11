@@ -1,7 +1,7 @@
 {
   "name": "@jimmyyen/opencode-registry-plugin",
   "version": "0.1.0",
-  "description": "Intent-driven MCP resource scheduling plugin for OpenCode — context-aware tool scoping via system-prompt injection and tool-description down-ranking.",
+  "description": "Attention-management plugin for OpenCode — soft-steers the model toward the right MCP tools via system-prompt hints and tool-description down-ranking, reducing tool-use hallucination from an overcrowded tool list.",
   "type": "module",
   "main": "plugins/registry.ts",
   "files": [
@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "zod": "^4.4.3",
-    "@opencode-ai/plugin": "^1.17.8"
+    "@opencode-ai/plugin": "^1.17.8",
+    "yaml": "^2.6.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

@@ -60,9 +60,9 @@ describe("TagFilter", () => {
     // Manually inject entries for unit testing
     const snapshot = {
       entries: [
-        { name: "code-review-graph", config: { type: "remote" as const, url: "" }, tags: ["code" as CapabilityTag, "nav" as CapabilityTag], tools: [] },
-        { name: "firecrawl", config: { type: "remote" as const, url: "" }, tags: ["web" as CapabilityTag, "search" as CapabilityTag], tools: [] },
-        { name: "trafilatura", config: { type: "remote" as const, url: "" }, tags: ["web" as CapabilityTag, "read" as CapabilityTag], tools: [] },
+        { name: "code-review-graph", config: { type: "remote" as const, url: "" }, tags: ["code" as CapabilityTag, "nav" as CapabilityTag] },
+        { name: "firecrawl", config: { type: "remote" as const, url: "" }, tags: ["web" as CapabilityTag, "search" as CapabilityTag] },
+        { name: "trafilatura", config: { type: "remote" as const, url: "" }, tags: ["web" as CapabilityTag, "read" as CapabilityTag] },
       ],
       defaultTagMap: {},
       timestamp: Date.now(),
