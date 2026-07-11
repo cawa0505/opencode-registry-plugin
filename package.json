@@ -35,5 +35,13 @@
   "devDependencies": {
     "typescript": "^5.7.0",
     "@types/node": "^22.0.0"
+  },
+  "overrides": {
+    "@opencode-ai/plugin": {
+      "zod": "4.4.3"
+    },
+    "@opencode-ai/sdk": {
+      "zod": "4.4.3"
+    }
   }
 }
