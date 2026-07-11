@@ -97,6 +97,27 @@ export const RegistryPlugin = async (
     tool: { registry: registryTool },
 
     /**
+     * Redundant fallback registration of /registry as a slash command.
+     * The native mechanism is the markdown file at
+     * .opencode/commands/registry.md (shipped in the package). This
+     * config.command mutation is kept as a belt-and-suspenders fallback
+     * in case a given opencode version prefers the hook-driven path.
+     * The template is sent to the LLM; the user's arguments are appended;
+     * the LLM then calls the `registry` tool to execute.
+     */
+    config: async (config: any) => {
+      config.command = config.command || {};
+      config.command["registry"] = {
+        template:
+          "Use the `registry` tool to manage MCP tool scoping. " +
+          "Parse the request below and call the tool with action " +
+          "(switch|reload|list|status|off) and profile if needed.\n\n",
+        description:
+          "MCP Registry: switch/reload/list/status/off tool profiles",
+      };
+    },
+
+    /**
      * Capture user intent + auto-profile on each user message.
      * Does NOT modify the message — only updates internal filter state.
      */
