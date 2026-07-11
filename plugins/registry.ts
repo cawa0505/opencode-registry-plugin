@@ -97,24 +97,39 @@ export const RegistryPlugin = async (
     tool: { registry: registryTool },
 
     /**
-     * Redundant fallback registration of /registry as a slash command.
-     * The native mechanism is the markdown file at
-     * .opencode/commands/registry.md (shipped in the package). This
-     * config.command mutation is kept as a belt-and-suspenders fallback
-     * in case a given opencode version prefers the hook-driven path.
-     * The template is sent to the LLM; the user's arguments are appended;
-     * the LLM then calls the `registry` tool to execute.
+     * Register /x-dispatch as a slash command via the config.command
+     * mutation. This is the same (undocumented but working) pattern the
+     * speak-human-tw reference plugin uses: config.command registers the
+     * command, and the command.execute.before hook below lets it pass
+     * through to the LLM (which then calls the `registry` tool).
+     * A plugin package's own .opencode/commands/ is NOT scanned when the
+     * plugin is installed elsewhere, so the markdown file there is dead;
+     * examples/x-dispatch.md is shipped as a manual fallback instead.
+     * The template is sent to the LLM with the user's arguments appended.
      */
     config: async (config: any) => {
       config.command = config.command || {};
-      config.command["registry"] = {
+      config.command["x-dispatch"] = {
         template:
-          "Use the `registry` tool to manage MCP tool scoping. " +
+          "Use the `registry` tool to manage tool scoping and dispatch profiles. " +
           "Parse the request below and call the tool with action " +
           "(switch|reload|list|status|off) and profile if needed.\n\n",
         description:
-          "MCP Registry: switch/reload/list/status/off tool profiles",
+          "Tool dispatch: switch/reload/list/status/off tool profiles",
       };
+    },
+
+    /**
+     * Let /x-dispatch pass through to the LLM. The config.command entry
+     * above registers the command; this no-op hook (same pattern as the
+     * speak-human-tw reference plugin) stops opencode from looking for a
+     * command handler so the template reaches the LLM, which then calls
+     * the `registry` tool.
+     */
+    "command.execute.before": async (command: any) => {
+      if (command?.command === "x-dispatch") {
+        return;
+      }
     },
 
     /**
