@@ -72,10 +72,7 @@ for a global default). Project overrides global.
 ## Commands
 
 The plugin exposes a `registry` tool and registers a **`/registry`** slash
-command via the plugin's `config` hook (the same working pattern as the
-speak-human-tw reference plugin). If your opencode version doesn't pick up
-the hook-registered command, drop `examples/registry.md` into
-`~/.config/opencode/commands/` as a fallback (see below).
+command via the plugin's `config` hook.
 
 | Command | Effect |
 |---|---|
