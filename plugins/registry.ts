@@ -113,17 +113,6 @@ export const RegistryPlugin = async (
         description:
           "Tool Registry: switch/reload/list/status/off tool profiles",
       };
-      config.command["crg"] = {
-        template:
-          "Manage the code-review-graph multi-repo registry by running the " +
-          "`crg-repo` shell command. Parse the user's arguments and execute " +
-          "exactly one of: `crg-repo add <repo-path>`, " +
-          "`crg-repo remove <repo-path>`, or `crg-repo list`. " +
-          "Use your exec/bash tool to run the command and report its output " +
-          "verbatim. Do not just describe it — actually run it.\n\n",
-        description:
-          "Code Review Graph: add/remove/list repos in the multi-repo registry",
-      };
     },
 
     /**
@@ -133,7 +122,7 @@ export const RegistryPlugin = async (
      * which then calls the `registry` tool.
      */
       "command.execute.before": async (command: any) => {
-        if (command?.command === "registry" || command?.command === "crg") {
+        if (command?.command === "registry") {
           return;
         }
       },
