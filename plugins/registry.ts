@@ -97,37 +97,37 @@ export const RegistryPlugin = async (
     tool: { registry: registryTool },
 
     /**
-     * Register /x-dispatch as a slash command via the config.command
+     * Register /registry as a slash command via the config.command
      * mutation. This is the same (undocumented but working) pattern the
      * speak-human-tw reference plugin uses: config.command registers the
      * command, and the command.execute.before hook below lets it pass
      * through to the LLM (which then calls the `registry` tool).
      * A plugin package's own .opencode/commands/ is NOT scanned when the
      * plugin is installed elsewhere, so the markdown file there is dead;
-     * examples/x-dispatch.md is shipped as a manual fallback instead.
+     * examples/registry.md is shipped as a manual fallback instead.
      * The template is sent to the LLM with the user's arguments appended.
      */
     config: async (config: any) => {
       config.command = config.command || {};
-      config.command["x-dispatch"] = {
+      config.command["registry"] = {
         template:
-          "Use the `registry` tool to manage tool scoping and dispatch profiles. " +
+          "Use the `registry` tool to manage tool scoping. " +
           "Parse the request below and call the tool with action " +
           "(switch|reload|list|status|off) and profile if needed.\n\n",
         description:
-          "Tool dispatch: switch/reload/list/status/off tool profiles",
+          "Tool Registry: switch/reload/list/status/off tool profiles",
       };
     },
 
     /**
-     * Let /x-dispatch pass through to the LLM. The config.command entry
+     * Let /registry pass through to the LLM. The config.command entry
      * above registers the command; this no-op hook (same pattern as the
      * speak-human-tw reference plugin) stops opencode from looking for a
      * command handler so the template reaches the LLM, which then calls
      * the `registry` tool.
      */
     "command.execute.before": async (command: any) => {
-      if (command?.command === "x-dispatch") {
+      if (command?.command === "registry") {
         return;
       }
     },
