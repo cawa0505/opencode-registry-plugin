@@ -1,0 +1,17 @@
+# code review profile — read-only analysis tools
+# Activate: registry switch review
+name: review
+description: "Code review — read-only analysis without write/web tools"
+version: "1.0"
+priority: 8
+tags:
+  - code
+  - search
+  - read
+  - nav
+servers:
+  exclude:
+    - write
+    - web
+    - media
+    - utility

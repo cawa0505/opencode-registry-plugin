@@ -1,0 +1,16 @@
+# bugfix profile — focus on debugging and code analysis tools
+# Activate: registry switch bugfix
+name: bugfix
+description: "Debugging session with code analysis, search, and web research tools"
+version: "1.0"
+priority: 10
+tags:
+  - code
+  - search
+  - read
+  - debug
+  - web
+servers:
+  exclude:
+    - media
+    - utility

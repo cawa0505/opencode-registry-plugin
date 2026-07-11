@@ -1,0 +1,13 @@
+# feature development profile — full toolset with write access
+# Activate: registry switch feature
+name: feature
+description: "Feature development — full MCP toolset for implementation"
+version: "1.0"
+priority: 5
+tags:
+  - code
+  - search
+  - read
+  - write
+  - web
+  - nav
