@@ -82,17 +82,6 @@ command via the plugin's `config` hook.
 | `/registry off` | Deactivate; fall back to auto-intent |
 | `/registry reload` | Re-scan registry + profiles |
 
-```markdown
----
-description: MCP Registry — switch/reload/list/status/off tool profiles
----
-
-Use the `registry` tool to manage tool scoping. Parse the request below and call the tool with action (switch|reload|list|status|off) and profile if needed.
-```
-
-Restart opencode; `/registry` appears in the palette and routes to the
-`registry` tool.
-
 Set `MCP_REGISTRY_DEBUG=1` to write a debug snapshot to
 `/tmp/opencode-registry-<session>.json`.
 
